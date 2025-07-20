@@ -9,7 +9,7 @@ def student_exists(enrollment, studentdetail_path):
     matching_row = df[df["Enrollment"] == enrollment]
     return [matching_row, not matching_row.empty]
 
-def deleteEntry(enrollment_input, studentdetail_path, text_to_speech):
+def deleteEntry(enrollment_input, haarcasecade_path, trainimagelabel_path, studentdetail_path, text_to_speech):
     if enrollment_input:
         if not enrollment_input.isdigit():
             st.warning("⚠️ Enrollment must be a number.")
@@ -23,11 +23,11 @@ def deleteEntry(enrollment_input, studentdetail_path, text_to_speech):
                     enrollment = int(matching_row["Enrollment"].values[0])
                     name = matching_row["Name"].values[0]
 
-                    df = pd.read_csv(studentdetail_path, header=None, names=["Enrollment", "Name"])
+                    df = pd.read_csv(studentdetail_path)
                     df = df[df["Enrollment"] != enrollment]  # Remove the row
-                    df.to_csv(studentdetail_path, header=False, index=False)
+                    df.to_csv(studentdetail_path, index=False)
 
-                    student_folder = os.path.join("TrainingImage", f"{enrollment}_{name}")
+                    student_path = os.path.join("TrainingImage", f"{enrollment}_{name}")
                     shutil.rmtree(student_path)
                     
                     TrainImage(
