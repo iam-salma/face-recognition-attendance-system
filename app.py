@@ -65,7 +65,9 @@ if menu == "Home":
         - **📝 Register Student Faces:** Easily capture and store student images.
         - **🧠 Train Recognition Model:** Train the AI with the registered data.
         - **📸 Real-time Attendance:** Use a webcam for automatic attendance.
+        - **📝 Manual Attendance:** Add Attendance manually.
         - **📊 View Attendance Logs:** Access and review detailed attendance records.
+        - **❌ Delete Registered students:** delete student records.
         """
     )
 
@@ -115,6 +117,7 @@ elif menu == "Manual Attendance":
             subject_input,
             enrollment_input,
             name_input,
+            studentdetail_path,
             text_to_speech)
 
 elif menu == "View Attendance":
@@ -122,7 +125,11 @@ elif menu == "View Attendance":
     subject_input = st.text_input("Enter Subject", key="view_attendance")
 
     if st.button("View Attendance", key="view_attendance_btn"):
-        selectSubject(subject_input, text_to_speech)
+        selectSubject(
+            subject_input,
+            studentdetail_path,
+            text_to_speech
+            )
 
 elif menu == "Delete Student":
     st.header("🗑️ Delete a Registered Student")
@@ -131,6 +138,8 @@ elif menu == "Delete Student":
     if st.button("Delete Permanantly"):
         deleteEntry(
             enrollment_input,
+            haarcasecade_path,
+            trainimagelabel_path,
             studentdetail_path,
             text_to_speech
             )
