@@ -4,7 +4,7 @@ import os
 import numpy as np
 from PIL import Image
 import pandas as pd
-import datetime
+from datetime import datetime
 import time
 import pyttsx3
 
@@ -19,14 +19,14 @@ def chooseSubject(subject_input, haarcasecade_path, trainimagelabel_path, studen
                 recognizer = cv2.face.LBPHFaceRecognizer_create()
                 recognizer.read(trainimagelabel_path)
                 facecasCade = cv2.CascadeClassifier(haarcasecade_path)
-                df = pd.read_csv(studentdetail_path)
                 
                 cam = cv2.VideoCapture(0)
                 font = cv2.FONT_HERSHEY_DUPLEX
                 
-                attendance = pd.DataFrame(columns=["Enrollment", "Name"])
+                students_df = pd.read_csv(studentdetail_path)
+                attendance_df = pd.DataFrame(columns=["Enrollment", "Name"])
                 end_time = time.time() + 5
-
+                
                 while time.time() < end_time:
                     ret, im = cam.read()
                     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
@@ -34,16 +34,23 @@ def chooseSubject(subject_input, haarcasecade_path, trainimagelabel_path, studen
                     
                     for (x, y, w, h) in faces:
                         Id, conf = recognizer.predict(gray[y:y + h, x:x + w])
-                        
+
                         if conf < 70:
-                            name = df.loc[df["Enrollment"] == Id]["Name"].values[0]
-                            attendance.loc[len(attendance)] = [Id, name]
-                            cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                            cv2.putText(im, f"{Id}-{name}", (x, y - 10), font, 0.8, (255, 255, 255), 2)
-                            
+                            student_row = students_df[students_df["Enrollment"] == Id]
+                            if not student_row.empty:
+                                name = student_row["Name"].values[0]
+                                attendance_df.loc[len(attendance_df)] = [Id, name]
+                                label = f"{Id}-{name}"
+                                color = (0, 255, 0)
+                            else:
+                                label = "Unregistered"
+                                color = (0, 165, 255)
                         else:
-                            cv2.rectangle(im, (x, y), (x + w, y + h), (0, 0, 255), 2)
-                            cv2.putText(im, "Unknown", (x, y - 10), font, 0.8, (0, 0, 255), 2)
+                            label = "Unknown"
+                            color = (0, 0, 255)
+                            
+                        cv2.rectangle(im, (x, y), (x + w, y + h), color, 2)
+                        cv2.putText(im, label, (x, y - 10), font, 0.8, (255, 255, 255), 2)
 
                     cv2.imshow("Filling Attendance", im)
                     if cv2.waitKey(1) & 0xFF == 27:
@@ -51,23 +58,44 @@ def chooseSubject(subject_input, haarcasecade_path, trainimagelabel_path, studen
 
                 cam.release()
                 cv2.destroyAllWindows()
-
-                attendance.drop_duplicates(["Enrollment"], inplace=True)
-                date = datetime.datetime.now().strftime("%Y-%m-%d")
-                timeStamp = datetime.datetime.now().strftime("%H-%M-%S")
-                attendance[date] = 1
-
-                subject_folder = os.path.join("Attendance", subject)
-                os.makedirs(subject_folder, exist_ok=True)
-                file_path = os.path.join(subject_folder, f"{subject}_{date}_{timeStamp}.csv")
-                attendance.to_csv(file_path, index=False)
-
-                st.dataframe(attendance)
-                st.success(f"✅ Attendance Filled Successfully for {subject}")
-                text_to_speech(f"Attendance filled successfully for {subject}")
                 
             except Exception as e:
                 st.error(f"⚠️ Error: {str(e)}")
-                text_to_speech("No face found for attendance")
+                text_to_speech("failed recognizing face please try again")
                 cam.release()
                 cv2.destroyAllWindows()
+                return
+
+            if attendance_df.empty:
+                st.error("❌ failed recognizing face")
+                text_to_speech("failed recognizing face please try again")
+                return
+            else:
+                attendance_df = attendance_df.drop_duplicates(subset="Enrollment", keep="last").reset_index(drop=True)
+                attendance_df["Present"] = 1
+                date = datetime.now().strftime("%Y-%m-%d")
+                
+                merged = pd.merge(students_df, attendance_df, on=["Enrollment", "Name"], how="left")
+                merged[date] = merged.get(date, merged.get("Present", 0)).fillna(0)
+                if "Present" in merged.columns:
+                    merged.drop(columns=["Present"], inplace=True)
+                
+                subject_folder = os.path.join("Attendance", subject)
+                os.makedirs(subject_folder, exist_ok=True)
+                
+                attendance_csv = os.path.join(subject_folder, "attendance.csv")
+                if os.path.exists(attendance_csv):
+                    existing_df = pd.read_csv(attendance_csv)
+                    final_df = pd.merge(existing_df, merged, on=["Enrollment", "Name"], how="outer")
+                else:
+                    final_df = merged
+                    
+                attendance_cols = final_df.columns[2:]  # Skip Enrollment and Name
+                final_df[attendance_cols] = final_df[attendance_cols].fillna(0)
+                final_df["Attendance"] = final_df[attendance_cols].mean(axis=1).apply(lambda x: f"{int(x * 100)}%")
+                final_df.to_csv(attendance_csv, index=False)
+                
+                st.dataframe(attendance_df)
+                st.success(f"✅ Attendance Filled Successfully for {subject}")
+                text_to_speech(f"Attendance filled successfully for {subject}")
+                
