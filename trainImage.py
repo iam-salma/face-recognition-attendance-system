@@ -1,12 +1,7 @@
-import csv
 import os, cv2
 import numpy as np
-import pandas as pd
-import datetime
-import time
 import streamlit as st
 from PIL import ImageTk, Image
-
 
 def TrainImage(haarcasecade_path, trainimagelabel_path, text_to_speech):
     try:

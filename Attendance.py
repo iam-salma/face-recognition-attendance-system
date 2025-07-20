@@ -1,12 +1,9 @@
 import streamlit as st
 import cv2
 import os
-import numpy as np
-from PIL import Image
 import pandas as pd
 from datetime import datetime
 import time
-import pyttsx3
 
 
 def chooseSubject(subject_input, haarcasecade_path, trainimagelabel_path, studentdetail_path, text_to_speech):
