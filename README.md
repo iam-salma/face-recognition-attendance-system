@@ -1,4 +1,12 @@
-# 🧑‍🏫 Face Recognition Attendance System
+<p align="center">
+  <img width="200" height="200" alt="ChatGPT Image Jul 20, 2025, 06_13_39 AM" src="https://github.com/user-attachments/assets/a9397cd9-d3ab-4925-aadc-c42f51115fdc" />
+</p>
+
+<h1 align="center">
+  Face Recognition Attendance System
+</h1>
+
+---
 
 A real-time face recognition-based attendance system built using **Streamlit** for the user interface, **OpenCV** for face detection and recognition, and **Haar Cascade classifiers** for facial feature extraction. This system allows you to register students, train a face recognition model, and take or view attendance with ease.
 
@@ -10,7 +18,7 @@ A real-time face recognition-based attendance system built using **Streamlit** f
 - 🧠 Train model using OpenCV and Haar Cascades
 - 🤖 Automatic attendance using webcam and face recognition
 - ✍️ Manual attendance entry
-- 📅 View attendance records by subject and date
+- 📅 View attendance records by subject and date + percentage
 - 🗑️ Delete student data from the system
 - 🔈 Text-to-speech for better accessibility
 
