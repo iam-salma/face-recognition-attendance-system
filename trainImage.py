@@ -15,13 +15,15 @@ def TrainImage(haarcasecade_path, trainimagelabel_path, text_to_speech):
         
         faces, Id = getImagesAndLables("TrainingImage")
         
-        if not faces or not Id:
-            st.warning("⚠️ No face data found. Please register student images first.")
-        else:
+        if faces and Id:
             recognizer.train(faces, np.array(Id))
             recognizer.save(trainimagelabel_path)
 
-            st.success("✅ Image trained successfully")
+            st.success("✅ Images trained successfully")
+            text_to_speech("Images trained successfully")
+        else:
+            with open("trainer.yaml", "w"):
+                pass
             
     except Exception as e:
         st.error(f"❌ An error occurred while training: {str(e)}")
