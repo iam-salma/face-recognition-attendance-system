@@ -2,3 +2,4 @@ venv/
 .venv
 .idea
 __pycache__
+test_req.txt
