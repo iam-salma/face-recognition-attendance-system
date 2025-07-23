@@ -1,7 +1,7 @@
 import os, cv2
 import numpy as np
 import streamlit as st
-from PIL import ImageTk, Image
+from PIL import Image
 
 def TrainImage(haarcasecade_path, trainimagelabel_path, text_to_speech):
     try:
