@@ -2,7 +2,6 @@ streamlit
 pillow
 pandas
 numpy
-opencv-python-headless
 opencv-contrib-python
 opencv-python
 openpyxl
